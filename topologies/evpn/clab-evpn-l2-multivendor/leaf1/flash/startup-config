@@ -1,0 +1,105 @@
+! Startup-config last modified at Thu Feb 20 22:46:02 2025 by root
+! device: leaf1 (cEOSLab, EOS-4.33.1F-39308076.liffeyceoslabarm (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$5.O49hTKE5BUCg.f$2yn38jTjtcn6XjN1M29GOHoEZeLod5p1fOwPpQczprtIuobSGiuv43ELZbc/7skLmpzv9UnasZl0nNTweahEO0
+!
+management api http-commands
+   no shutdown
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf1
+!
+router l2-vpn
+   arp learning bridged
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vlan 10,20
+!
+vrf instance TENANT-A
+!
+management api gnmi
+   transport grpc default
+!
+management api netconf
+   transport ssh default
+!
+interface Ethernet1
+   no switchport
+   ipv6 enable
+!
+interface Ethernet2
+   switchport access vlan 10
+!
+interface Ethernet3
+   switchport access vlan 20
+!
+interface Loopback0
+   ip address 1.1.1.1/32
+!
+interface Management0
+   ip address 172.20.20.6/24
+   ipv6 address 3fff:172:20:20::6/64
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10,20 vni 10,20
+!
+ip routing ipv6 interfaces 
+no ip routing vrf TENANT-A
+!
+ip prefix-list REDIST
+   seq 10 permit 1.1.1.1/32
+!
+ipv6 unicast-routing
+!
+ip route 0.0.0.0/0 172.20.20.1
+!
+ipv6 route ::/0 3fff:172:20:20::1
+!
+route-map REDIST permit 10
+   match ip address prefix-list REDIST
+!
+router bgp 100
+   router-id 10.10.10.10
+   no bgp default ipv4-unicast
+   bgp default ipv4-unicast transport ipv6
+   neighbor ebgp peer group
+   neighbor ebgp send-community
+   redistribute connected route-map REDIST
+   neighbor interface Et1 peer-group ebgp remote-as 1000
+   !
+   vlan-aware-bundle CUST
+      rd 10:10
+      route-target both 10:10
+      redistribute learned
+      vlan 10,20
+   !
+   address-family evpn
+      neighbor ebgp activate
+   !
+   address-family ipv4
+      neighbor ebgp activate
+      neighbor ebgp next-hop address-family ipv6 originate
+      redistribute connected
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end

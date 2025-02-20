@@ -1,0 +1,100 @@
+{
+  "name": "ceos",
+  "type": "clab",
+  "clab": {
+    "config": {
+      "prefix": "clab",
+      "mgmt": {
+        "network": "clab",
+        "bridge": "br-5f8bd78cce74",
+        "ipv4-subnet": "172.20.20.0/24",
+        "ipv4-gw": "172.20.20.1",
+        "ipv6-subnet": "3fff:172:20:20::/64",
+        "ipv6-gw": "3fff:172:20:20::1",
+        "mtu": 65535,
+        "external-access": true
+      }
+    }
+  },
+  "ssh-pub-keys": ["ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBNi2PrqgnQDqhkFFHac7tAyfn3UK2+CfKuI7pY/R2T0/FBX6GZizflvQIkGY0AtISrEyje+0jr1Eax6w9VBUAmA="],
+  "nodes": {
+    "ceos1": {
+      "index": "0",
+      "shortname": "ceos1",
+      "longname": "clab-ceos-ceos1",
+      "fqdn": "ceos1.ceos.io",
+      "group": "",
+      "labdir": "/Users/dan/gitea/ContainerLab/topologies/basic/clab-ceos/ceos1",
+      "kind": "ceos",
+      "image": "ceos:4.33-arm",
+      "mgmt-net": "",
+      "mgmt-intf": "Management0",
+      "mgmt-ipv4-address": "172.20.20.2",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::2",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "00:1c:73:c7:bc:92",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-5f8bd78cce74",
+        "clab-node-group": "",
+        "clab-node-kind": "ceos",
+        "clab-node-lab-dir": "/Users/dan/gitea/ContainerLab/topologies/basic/clab-ceos/ceos1",
+        "clab-node-longname": "clab-ceos-ceos1",
+        "clab-node-name": "ceos1",
+        "clab-node-type": "",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/Users/dan/gitea/ContainerLab/topologies/basic/topology.clab.yml",
+        "containerlab": "ceos"
+      },
+      "port-bindings": [
+      ]
+    },
+    "ceos2": {
+      "index": "1",
+      "shortname": "ceos2",
+      "longname": "clab-ceos-ceos2",
+      "fqdn": "ceos2.ceos.io",
+      "group": "",
+      "labdir": "/Users/dan/gitea/ContainerLab/topologies/basic/clab-ceos/ceos2",
+      "kind": "ceos",
+      "image": "ceos:4.33-arm",
+      "mgmt-net": "",
+      "mgmt-intf": "Management0",
+      "mgmt-ipv4-address": "172.20.20.3",
+      "mgmt-ipv4-prefix-length": 24,
+      "mgmt-ipv6-address": "3fff:172:20:20::3",
+      "mgmt-ipv6-prefix-length": 64,
+      "mac-address": "00:1c:73:2e:d3:58",
+      "labels": {
+        "clab-mgmt-net-bridge": "br-5f8bd78cce74",
+        "clab-node-group": "",
+        "clab-node-kind": "ceos",
+        "clab-node-lab-dir": "/Users/dan/gitea/ContainerLab/topologies/basic/clab-ceos/ceos2",
+        "clab-node-longname": "clab-ceos-ceos2",
+        "clab-node-name": "ceos2",
+        "clab-node-type": "",
+        "clab-owner": "vscode",
+        "clab-topo-file": "/Users/dan/gitea/ContainerLab/topologies/basic/topology.clab.yml",
+        "containerlab": "ceos"
+      },
+      "port-bindings": [
+      ]
+    }
+  },
+  "links": [
+    {
+      "a": {
+        "node": "ceos1",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:28:01:ec",
+        "peer": "z"
+      },
+      "z": {
+        "node": "ceos2",
+        "interface": "eth1",
+        "mac": "aa:c1:ab:57:6d:73",
+        "peer": "a"
+      }
+    }
+  ]
+}

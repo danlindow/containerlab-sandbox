@@ -1,0 +1,61 @@
+! Startup-config last modified at Sat Feb 15 21:08:46 2025 by root
+! device: ceos1 (cEOSLab, EOS-4.33.1F-39308076.liffeyceoslabarm (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$wyh1IEbyqjtEAtx/$4Ml8.1/YfEuaI8DY9HcDNYj78NnqZSrsxHSrpMUX9Y6sCA60H8zOVUV7M/xGRv5/g25g9qhi/8ZP13e/zCAq9.
+!
+management api http-commands
+   no shutdown
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname ceos1
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+management api gnmi
+   transport grpc default
+!
+management api netconf
+   transport ssh default
+!
+interface Ethernet1
+   no switchport
+   ip address 1.1.1.1/31
+!
+interface Loopback0
+   ip address 100.100.100.100/32
+!
+interface Management0
+   ip address 172.20.20.2/24
+   ipv6 address 3fff:172:20:20::2/64
+!
+ip routing
+!
+ip route 0.0.0.0/0 172.20.20.1
+!
+ipv6 route ::/0 3fff:172:20:20::1
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+router ospf 100
+   no passive-interface Ethernet1
+   redistribute connected
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end

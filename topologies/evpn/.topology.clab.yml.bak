@@ -1,0 +1,39 @@
+name: evpn-l2-multivendor
+topology:
+  nodes:
+    spine1:
+      kind: ceos
+      image: ceos:4.33-arm
+    leaf1:
+      kind: ceos
+      image: ceos:4.33-arm
+    leaf2:
+      kind: ceos
+      image: ceos:4.33-arm
+    h1:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 10.10.10.10/24 dev eth1
+    h2:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 10.10.10.20/24 dev eth1
+    h3:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 20.20.20.10/24 dev eth1
+    h4:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 20.20.20.20/24 dev eth1
+  links:
+          - endpoints: ["leaf1:eth1", "spine1:eth1"]
+          - endpoints: ["leaf2:eth1", "spine1:eth2"]
+          - endpoints: ["leaf1:eth2", "h1:eth1"]
+          - endpoints: ["leaf2:eth2", "h2:eth1"]
+          - endpoints: ["leaf1:eth3", "h3:eth1"]
+          - endpoints: ["leaf2:eth3", "h4:eth1"]
