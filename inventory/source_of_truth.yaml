@@ -1,0 +1,179 @@
+hosts:
+  spine1:
+    routing:
+      ip_routing_enabled: True
+      ipv4_over_ipv6_interfaces: True
+      ipv6_routing_enabled: True
+      router_id: 3.3.3.3
+      bgp:
+        asn: 1000
+        peer_groups:
+          LEAF:
+            address_families:
+              evpn:
+              ipv4:
+                next_hop_unchanged: True
+                next_hop_ipv6_originate: True
+                redistribute_connected: True
+            interfaces:
+              Et1:
+                remote_asn: 100
+              Et2:
+                remote_asn: 200
+
+    interfaces:
+      Ethernet1:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Ethernet2:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Loopback0:
+        type: loopback
+        ipv4_address: 3.3.3.3/32
+        routed: True
+      Management0:
+        type: management
+        ipv4_address: 172.200.20.2/24
+        routed: True
+  spine2:
+    routing:
+      ip_routing_enabled: True
+      ipv4_over_ipv6_interfaces: True
+      ipv6_routing_enabled: True
+      router_id: 4.4.4.4
+      bgp:
+        asn: 1000
+        peer_groups:
+          LEAF:
+            address_families:
+              evpn:
+              ipv4:
+                next_hop_unchanged: True
+                next_hop_ipv6_originate: True
+                redistribute_connected: True
+            interfaces:
+              Et1:
+                remote_asn: 100
+              Et2:
+                remote_asn: 200
+    interfaces:
+      Ethernet1:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Ethernet2:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Loopback0:
+        type: loopback
+        ipv4_address: 4.4.4.4/32
+        routed: True
+      Management0:
+        type: management
+        ipv4_address: 172.200.20.3/24
+        routed: True
+  leaf1:
+    routing:
+      ip_routing_enabled: True
+      ipv4_over_ipv6_interfaces: True
+      ipv6_routing_enabled: True
+      router_id: 1.1.1.1
+      vxlan_enabled: True
+      vxlan_vlan_range: 10-100
+      bgp:
+        asn: 100
+        peer_groups:
+          SPINE:
+            address_families:
+              evpn:
+              ipv4:
+                next_hop_unchanged: True
+                next_hop_ipv6_originate: True
+                redistribute_connected: True
+            interfaces:
+              Et1:
+                remote_asn: 1000
+              Et2:
+                remote_asn: 1000
+
+    interfaces:
+      Ethernet1:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Ethernet2:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Ethernet3:
+        type: physical
+        routed: False
+        vlan: 10
+      Ethernet4:
+        type: physical
+        routed: False
+        vlan: 20
+      Loopback0:
+        type: loopback
+        ipv4_address: 1.1.1.1/32
+        routed: True
+      Management0:
+        type: management
+        ipv4_address: 172.200.20.4/24
+        routed: True
+  leaf2:
+    routing:
+      ip_routing_enabled: True
+      ipv4_over_ipv6_interfaces: True
+      ipv6_routing_enabled: True
+      router_id: 2.2.2.2
+      vxlan_enabled: True
+      vxlan_vlan_range: 10-100
+      bgp:
+        asn: 200
+        peer_groups:
+          SPINE:
+            address_families:
+              evpn:
+              ipv4:
+                next_hop_unchanged: True
+                next_hop_ipv6_originate: True
+                redistribute_connected: True
+            interfaces:
+              Et1:
+                remote_asn: 1000
+              Et2:
+                remote_asn: 1000
+
+    interfaces:
+      Ethernet1:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Ethernet2:
+        type: physical
+        ipv6_link_local: True
+        routed: True
+      Ethernet3:
+        type: physical
+        routed: False
+        vlan: 10
+      Ethernet4:
+        type: physical
+        routed: False
+        vlan: 20
+      Loopback0:
+        type: loopback
+        ipv4_address: 2.2.2.2/32
+        routed: True
+      Management0:
+        type: management
+        ipv4_address: 172.200.20.5/24
+        routed: True
+      
+globals:
+  management_default_gateway: 172.20.20.1

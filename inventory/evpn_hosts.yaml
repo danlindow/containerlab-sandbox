@@ -1,0 +1,13 @@
+---
+spine1:
+   hostname: 172.200.20.2
+   platform: eos
+spine2:
+   hostname: 172.200.20.3
+   platform: eos
+leaf1:
+   hostname: 172.200.20.4
+   platform: eos
+leaf2:
+   hostname: 172.200.20.5
+   platform: eos

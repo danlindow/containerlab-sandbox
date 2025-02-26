@@ -1,0 +1,143 @@
+{# authentication #}
+no aaa root
+username admin privilege 15 role network-admin secret sha512 $6$bqedIKD53zzy0PPM$2zC28HSe44wq8aFWer/vw.3kdAgaAi9Jocigu8YqnUpFaC2tqK.yTku25x4U67LQQCn0eD1oltDNsLQqEZtJv1
+
+
+{# management interfaces #}
+management api http-commands
+   no shutdown
+!
+management api gnmi
+   transport grpc default
+!
+management api netconf
+   transport ssh default
+!
+
+no service interface inactive port-id allocation disabled
+transceiver qsfp default-mode 4x10G
+service routing protocols model multi-agent
+!
+
+hostname {{ data.hostname }}
+
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+
+{# Interface configuration #}
+{% set interfaces = data.device_data.interfaces %}
+{% for interface, interface_data in interfaces.items() %}
+{# define VLANs #}
+{% set vlans = [] %}
+{% if interface_data.vlan is defined %}
+vlan {{ interface_data.vlan }}
+{% set vlans = vlans.append(interface_data.vlan) %}
+{% endif %}
+interface {{ interface }}
+    {%- if interface_data.routed == True and interface_data.type == "physical" %}
+    no switchport
+    {% endif %}
+    {% if interface_data.vlan is defined %}
+    switchport access vlan {{ interface_data.vlan }}
+    {% endif %}
+    {%- if interface_data.ipv6_link_local %}
+    ipv6 enable
+    {% endif %}
+    {%- if interface_data.ipv4_address is defined %}
+    ip address {{ interface_data.ipv4_address }}
+    {% endif %}
+{% endfor %}
+{% if data.device_data.routing.vxlan_enabled %}
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan vlan {{ data.device_data.routing.vxlan_vlan_range }} vni {{ data.device_data.routing.vxlan_vlan_range }}
+{% endif %}
+
+{% if data.device_data.routing.ipv4_over_ipv6_interfaces is defined %}
+ip routing ipv6 interfaces 
+{% endif %}
+!
+
+{# define loopback prefix list #}
+{% if interfaces.Loopback0 is defined %}
+ip prefix-list LOOPBACK
+   seq 10 permit {{ interfaces.Loopback0.ipv4_address }}
+{% endif %}
+
+{% if data.device_data.routing.ipv6_routing_enabled is defined %}
+ipv6 unicast-routing
+{% endif %}
+
+{# set MGMT default route #}
+ip route 0.0.0.0/0 {{data.global_data.management_default_gateway }}
+!
+
+{# Define redistributions into BGP #}
+route-map REDIST permit 10
+{% if interfaces.Loopback0 is defined %}
+   match ip address prefix-list LOOPBACK
+{% endif %}
+
+!
+{% if data.device_data.routing.bgp is defined %}
+router bgp {{ data.device_data.routing.bgp.asn }}
+   router-id {{data.device_data.routing.router_id }}
+   no bgp default ipv4-unicast
+   bgp default ipv4-unicast transport ipv6
+   maximum-paths 4 ecmp 4
+
+   redistribute connected route-map REDIST
+   {% for peer_group, group_data in data.device_data.routing.bgp.peer_groups.items() %}
+   neighbor {{ peer_group}}  peer group
+   neighbor {{ peer_group}} send-community
+   {# if a VXLAN peer group #}
+   {% if data.device_data.routing.vxlan_enabled %}
+   vlan-aware-bundle CLIENTS
+      rd 1:1
+      route-target both 1:1
+      redistribute learned
+      vlan {{ data.device_data.routing.vxlan_vlan_range }}
+   {% endif %}
+
+   {# EVPN AFI #}
+   {% if group_data.address_families.evpn is defined %}
+   address-family evpn
+      neighbor {{ peer_group }} activate
+   {% endif %}
+
+   {# IPv4 AFI #}
+   {% if group_data.address_families.ipv4 is defined %}
+   address-family ipv4
+        {% if group_data.address_families.ipv4.next_hop_unchanged is defined %}
+      no bgp next-hop-unchanged
+        {% endif %}
+      neighbor {{peer_group }} activate
+        {% if group_data.address_families.ipv4.next_hop_ipv6_originate is defined %}
+      neighbor {{peer_group }} next-hop address-family ipv6 originate
+        {% endif %}
+        {% if group_data.address_families.ipv4.redistribute_connected is defined %}
+      redistribute connected
+      {% endif %}
+   {% endif %}
+
+
+   {% for bgp_interface, bgp_interface_data in group_data.interfaces.items() %}
+   neighbor interface {{bgp_interface}} peer-group {{ peer_group}} remote-as {{ bgp_interface_data.remote_asn }}
+   {% endfor %}
+   {% endfor %}
+   !
+
+!
+{% endif %}
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end

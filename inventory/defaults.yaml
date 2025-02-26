@@ -1,0 +1,4 @@
+# Nornir defaults
+# https://nornir.readthedocs.io/en/latest/api/nornir/core/inventory.html#nornir.core.inventory.Defaults
+username: admin
+password: admin
