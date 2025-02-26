@@ -1,15 +1,25 @@
-name: evpn-l2-multivendor
+name: evpn
+mgmt:
+  network: fixedips
+  ipv4-subnet: 172.200.20.0/24
 topology:
   nodes:
     spine1:
       kind: ceos
       image: ceos:4.33-arm
+      mgmt-ipv4: 172.200.20.2
+    spine2:
+      kind: ceos
+      image: ceos:4.33-arm
+      mgmt-ipv4: 172.200.20.3
     leaf1:
       kind: ceos
       image: ceos:4.33-arm
+      mgmt-ipv4: 172.200.20.4
     leaf2:
       kind: ceos
       image: ceos:4.33-arm
+      mgmt-ipv4: 172.200.20.5
     h1:
       kind: linux
       image: alpine:latest
@@ -33,6 +43,8 @@ topology:
   links:
           - endpoints: ["leaf1:eth1", "spine1:eth1"]
           - endpoints: ["leaf2:eth1", "spine1:eth2"]
+          - endpoints: ["leaf1:eth4", "spine2:eth3"]
+          - endpoints: ["leaf2:eth4", "spine2:eth4"]
           - endpoints: ["leaf1:eth2", "h1:eth1"]
           - endpoints: ["leaf2:eth2", "h2:eth1"]
           - endpoints: ["leaf1:eth3", "h3:eth1"]
